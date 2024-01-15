@@ -1,0 +1,13 @@
+"","c_indexes"
+"EPIC-450k",0.840819
+"Top 200k by Variance",0.860058
+"Top 100k by Variance",0.85211
+"PCA Top 200k by Variance",0.841453
+"PCA EPIC-450k",0.836937
+"Incident T2D EWAS",0.866075
+"Prevalent T2D EWAS",0.857941
+"Prevalent and Incident T2D EWAS",0.858277
+"RTFS",0.866052
+"Risk Factors",0.827863
+"Risk Factors + PRS",0.842932
+"Risk Factors + PRS + Incident T2D EWAS EpiScore",0.876495
