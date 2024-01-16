@@ -1,6 +1,6 @@
 library(dplyr)
 
-config <- yaml::read_yaml("config.yml")
+config <- yaml::read_yaml(here::here("config.yml"))
 
 readFromResults <- function(filename) {
   readRDS(paste0(config$methylpiper_logs_path, filename))

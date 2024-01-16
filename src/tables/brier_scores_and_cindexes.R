@@ -2,6 +2,8 @@ library(dplyr)
 library(SurvMetrics)
 library(survival)
 
+config <- yaml::read_yaml(here::here("config.yml"))
+
 predictCoxPHOnset <- function(dataDF, coxPHModel, threshold = 10) {
   uniqueTimes <- sort(unique(c(dataDF$time_to_event, threshold)))
   thresholdIndex <- match(threshold, uniqueTimes)
@@ -27,7 +29,7 @@ predictCoxPHOnset <- function(dataDF, coxPHModel, threshold = 10) {
 time_points <- seq(1, 10, 1)
 
 readFromResults <- function(filename) {
-  readRDS(paste0("/Cluster_Filespace/Marioni_Group/Yipeng/prediction-pipelines/rtfs_20k/gp_hosp_40_60/scripts_20230221/results_gp_smr/methylpiper_logs/", filename))
+  readRDS(paste0(config$methylpiper_logs_path, filename))
 }
 
 results <- list(
