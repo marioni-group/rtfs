@@ -12,7 +12,7 @@ source(here::here("src", "analysis_functions.R"))
 
 startTimestamp <- format(Sys.time(), "%Y_%m_%d_%H_%M_%S")
 
-initLogs(config$methylpiper_logs_path, note = 'Cox lasso EpiScore predictor. Trained on w3 only')
+initLogs(config$methylpiper_logs_path, note = 'Cox elastic-net EpiScore predictor, CpGs filtered to EPIC-450k intersection. Trained on w3 only')
 
 set.seed(42)
 
