@@ -1,13 +1,13 @@
 library(MethylPipeR)
 library(survival)
 
-config <- yaml::read_yaml(here::here("config.yml")) 
+config <- yaml::read_yaml(here::here("config.yml"))
 
 source(here::here("src", "analysis_functions.R"))
 
-startTimestamp <- format(Sys.time(), "%Y_%m_%d_%H_%M_%S")
+startTimestamp <- format(Sys.time(), '%Y_%m_%d_%H_%M_%S')
 
-initLogs(config$methylpiper_logs_path, note = 'Cox elastic-net EpiScore predictor, CpGs filtered to EPIC-450k intersection. Trained on w3 only')
+initLogs(config$methylpiper_logs_path, note = 'Cox elastic-net EpiScore predictor, CpGs filtered to top 200k by variance. Trained on w3 only')
 
 set.seed(42)
 
@@ -16,6 +16,21 @@ targetW3 <- loadResult$targetW3
 methylW3 <- loadResult$methylW3
 targetW1 <- loadResult$targetW1
 methylW1 <- loadResult$methylW1
+
+methylW4 <- readRDS(paste0(config$dnam_data_path, "w4Methyl.rds"))
+
+methylW4 <- methylW4[, colnames(methylW1)]
+
+p <- 200000
+topCpGsByVariance <- getFilterByVarianceIDs(methylW4, p)
+gc()
+
+methylW4 <- NULL
+gc()
+
+methylW3 <- methylW3[, topCpGsByVariance]
+methylW1 <- methylW1[, topCpGsByVariance]
+gc()
 
 # Scale methylation data
 methylW3 <- scale(methylW3)
@@ -46,7 +61,7 @@ set.seed(42)
 
 writeLines('Fitting direct T2D Lasso')
 
-results <- fitAndPredict(methylW3, targetW3, methylW1, targetW1, seed = 42, nFolds = 9, standardize = FALSE, searchAlphas = seq(0, 1, 0.1))
+results <- fitAndPredict(methylW3, targetW3, methylW1, targetW1, seed = 42, nFolds = 3, standardize = FALSE, searchAlphas = seq(0, 1, 0.1))
 
 saveResults(results)
 

@@ -1,15 +1,16 @@
 library(MethylPipeR)
 library(survival)
 
-config <- yaml::read_yaml(here::here("config.yml")) 
+config <- yaml::read_yaml(here::here("config.yml"))
 
 source(here::here("src", "analysis_functions.R"))
 
-startTimestamp <- format(Sys.time(), "%Y_%m_%d_%H_%M_%S")
+startTimestamp <- format(Sys.time(), '%Y_%m_%d_%H_%M_%S')
 
-initLogs(config$methylpiper_logs_path, note = 'Cox elastic-net EpiScore predictor, CpGs filtered to EPIC-450k intersection. Trained on w3 only')
+initLogs(config$methylpiper_logs_path, note = 'Cox elastic-net EpiScore predictor, CpGs filtered to EPIC-450k intersection. PCA applied, keeping top PCs that together explain 95% of the training set variance. Trained on w3 only')
 
 set.seed(42)
+
 
 loadResult <- load450kW3W1(censoring = "apr_2022")
 targetW3 <- loadResult$targetW3
@@ -17,11 +18,22 @@ methylW3 <- loadResult$methylW3
 targetW1 <- loadResult$targetW1
 methylW1 <- loadResult$methylW1
 
+gc()
+
 # Scale methylation data
 methylW3 <- scale(methylW3)
 methylW1 <- scale(methylW1)
 gc()
 
+w3PCAResult <- prcomp(methylW3, scale = FALSE, center = FALSE)
+pcaPropVarExplained <- summary(w3PCAResult)$importance[3,]
+var95Threshold <- which(pcaPropVarExplained > 0.95)[[1]]
+
+loadings <- w3PCAResult$rotation[,1:var95Threshold]
+
+methylW3 <- w3PCAResult$x[, 1:var95Threshold]
+
+methylW1 <- methylW1 %*% loadings
 
 # Add family information
 targetW3 <- addFamilyInformation(targetW3)
@@ -49,6 +61,11 @@ writeLines('Fitting direct T2D Lasso')
 results <- fitAndPredict(methylW3, targetW3, methylW1, targetW1, seed = 42, nFolds = 9, standardize = FALSE, searchAlphas = seq(0, 1, 0.1))
 
 saveResults(results)
+
+saveResults(list(
+  w3PCAResult = w3PCAResult,
+  var95Threshold = var95Threshold
+))
 
 gc()
 

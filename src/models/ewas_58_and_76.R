@@ -1,15 +1,20 @@
 library(MethylPipeR)
 library(survival)
 
-config <- yaml::read_yaml(here::here("config.yml")) 
+config <- yaml::read_yaml(here::here("config.yml"))
 
 source(here::here("src", "analysis_functions.R"))
 
-startTimestamp <- format(Sys.time(), "%Y_%m_%d_%H_%M_%S")
+startTimestamp <- format(Sys.time(), '%Y_%m_%d_%H_%M_%S')
 
-initLogs(config$methylpiper_logs_path, note = 'Cox elastic-net EpiScore predictor, CpGs filtered to EPIC-450k intersection. Trained on w3 only')
+initLogs(config$methylpiper_logs_path, note = 'Cox elastic-net EpiScore predictor, CpGs filtered to union of incident and prevalent T2D EWAS hits. Trained on w3 only')
 
 set.seed(42)
+
+prevalentCpGs <- read.csv(here::here('resources', 'type_2_diabetes_ewas_catalog_20230220.tsv'), sep = '\t')$cpg
+incidentCpGs <- read.csv(here::here('resources', 'ewas_76_cpgs.csv'))$cpg
+
+cpgs <- union(prevalentCpGs, incidentCpGs)
 
 loadResult <- load450kW3W1(censoring = "apr_2022")
 targetW3 <- loadResult$targetW3
@@ -17,11 +22,18 @@ methylW3 <- loadResult$methylW3
 targetW1 <- loadResult$targetW1
 methylW1 <- loadResult$methylW1
 
+
+cpgs <- intersect(colnames(methylW3), cpgs)
+methylW3 <- methylW3[, cpgs]
+gc()
+
+methylW1 <- methylW1[, cpgs]
+gc()
+
 # Scale methylation data
 methylW3 <- scale(methylW3)
 methylW1 <- scale(methylW1)
 gc()
-
 
 # Add family information
 targetW3 <- addFamilyInformation(targetW3)

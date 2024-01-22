@@ -1,15 +1,24 @@
 library(MethylPipeR)
 library(survival)
 
-config <- yaml::read_yaml(here::here("config.yml")) 
+config <- yaml::read_yaml(here::here("config.yml"))
 
 source(here::here("src", "analysis_functions.R"))
 
-startTimestamp <- format(Sys.time(), "%Y_%m_%d_%H_%M_%S")
+startTimestamp <- format(Sys.time(), '%Y_%m_%d_%H_%M_%S')
 
-initLogs(config$methylpiper_logs_path, note = 'Cox elastic-net EpiScore predictor, CpGs filtered to EPIC-450k intersection. Trained on w3 only')
+initLogs(config$methylpiper_logs_path, note = 'Cox elastic-net EpiScore predictor, CpGs filtered to RTFS pre-selected. Trained on w3 only')
 
 set.seed(42)
+
+continuousResults <- readRDS(paste0(config$continuous_traits_methylpiper_logs_path, 'output_2022_10_10_11_44_58/traitResults.rds'))
+continuousCpGs <- lapply(continuousResults, function(x) {coef(x$model$model, s = 'lambda.min')})
+# Get names of non-zero CpG coefficients
+continuousCpGNames <- lapply(continuousCpGs, function(x) {
+  coefNames <- x[x[,1] != 0,] %>% names
+  coefNames[coefNames != '(Intercept)']
+})
+cpgs <- unique(unlist(continuousCpGNames))
 
 loadResult <- load450kW3W1(censoring = "apr_2022")
 targetW3 <- loadResult$targetW3
@@ -17,11 +26,17 @@ methylW3 <- loadResult$methylW3
 targetW1 <- loadResult$targetW1
 methylW1 <- loadResult$methylW1
 
+cpgs <- intersect(colnames(methylW3), cpgs)
+methylW3 <- methylW3[, cpgs]
+gc()
+
+methylW1 <- methylW1[, cpgs]
+gc()
+
 # Scale methylation data
 methylW3 <- scale(methylW3)
 methylW1 <- scale(methylW1)
 gc()
-
 
 # Add family information
 targetW3 <- addFamilyInformation(targetW3)
