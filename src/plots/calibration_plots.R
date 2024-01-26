@@ -2,11 +2,13 @@ library(MethylPipeR)
 library(CalibrationCurves)
 library(patchwork)
 
-w1Target <- readRDS('/Cluster_Filespace/Marioni_Group/Yipeng/prediction-pipelines/rtfs_20k/gp_hosp_40_60/scripts_20230221/results_gp_smr/methylpiper_logs/output_2023_10_01_19_59_28/testTarget.rds')
+config <- yaml::read_yaml(here::here("config.yml"))
 
-coxTestResultsRTFS <- readRDS('/Cluster_Filespace/Marioni_Group/Yipeng/prediction-pipelines/rtfs_20k/gp_hosp_40_60/scripts_20230221/results_gp_smr/methylpiper_logs/output_2023_10_01_19_59_28/testResults.rds')
+w1Target <- readRDS(paste0(config$methylpiper_logs_path, 'output_2023_10_01_19_59_28/testTarget.rds'))
 
-coxTestResultsEWAS76 <- readRDS('/Cluster_Filespace/Marioni_Group/Yipeng/prediction-pipelines/rtfs_20k/gp_hosp_40_60/scripts_20230221/results_gp_smr/methylpiper_logs/output_2023_10_01_19_47_09/testResults.rds')
+coxTestResultsRTFS <- readRDS(paste0(config$methylpiper_logs_path, 'output_2023_10_01_19_59_28/testResults.rds'))
+
+coxTestResultsEWAS76 <- readRDS(paste0(config$methylpiper_logs_path, 'output_2023_10_01_19_47_09/testResults.rds'))
 
 nullResponse <- coxTestResultsRTFS$r$onsetPredictions
 rtfsResponse <- coxTestResultsRTFS$d$onsetPredictions
