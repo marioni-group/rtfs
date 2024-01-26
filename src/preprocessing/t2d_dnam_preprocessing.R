@@ -1,6 +1,8 @@
 library(tictoc)
 tic()
 
+config <- yaml::read_yaml(here::here("config.yml"))
+
 censoring <- "apr_2022" # "oct_2020"
 
 writeLines('Obtaining IDs for Wave 4+3 and Wave 1 individuals\n')
@@ -12,7 +14,7 @@ gs10kTarget <- readRDS('/Cluster_Filespace/Marioni_Group/Yipeng/prediction-pipel
 w1Target <- gs10kTarget[gs10kTarget$Set == 'W1',]
 w3Target <- gs10kTarget[gs10kTarget$Set == 'W3',]
 
-pedigree <- read.csv('/Cluster_Filespace/Marioni_Group/Yipeng/prediction-pipelines/incident_diabetes_pipeline/using_methylpiper/src/20k/preprocessing/2022-01-17_pedigree.csv')
+pedigree <- read.csv(config$pedigree_file_path)
 
 w4IDs <- w4Target$Sample_Name
 w1IDs <- w1Target$Sample_Name
@@ -23,11 +25,11 @@ writeLines(paste0('Initial n individuals in Wave 3 = ', length(w3IDs)))
 writeLines(paste0('Initial n individuals in Wave 1 = ', length(w1IDs), '\n'))
 
 if (censoring == "oct_2020") {
-  coxTable <- read.csv('/Cluster_Filespace/Marioni_Group/Yipeng/prediction-pipelines/rtfs_20k/gp_hosp_40_60/t2d_cox_table_gp_smr_oct_2020_censoring_with_code.csv')[, c('Sample_Name', 'Event', 'tte')]
-} else if (censoring == "apr_2022") {
-  coxTable <- read.csv('/Cluster_Filespace/Marioni_Group/Yipeng/prediction-pipelines/rtfs_20k/gp_hosp_40_60/t2d_cox_table_gp_smr_apr_2022_censoring_with_code.csv')[, c('Sample_Name', 'Event', 'tte')]
+  coxTable <- read.csv(paste0(config$t2d_data_path, 't2d_cox_table_gp_smr_oct_2020_censoring_with_code.csv'))[, c('Sample_Name', 'Event', 'tte')]
+} else if (censoring == 'apr_2022') {
+  coxTable <- read.csv(paste0(config$t2d_data_path, 't2d_cox_table_gp_smr_apr_2022_censoring_with_code.csv'))[, c('Sample_Name', 'Event', 'tte')]
 } else {
-  coxTable <- read.csv('/Cluster_Filespace/Marioni_Group/Yipeng/prediction-pipelines/rtfs_20k/gp_hosp_40_60/diabetes_updated.phen')[, c('Sample_Name', 'Event', 'tte')]
+  coxTable <- read.csv(paste0(config$t2d_data_path, 'diabetes_updated.phen'))[, c('Sample_Name', 'Event', 'tte')]
 }
 
 coxTableEvents <- coxTable[coxTable$Event == 1, ]
