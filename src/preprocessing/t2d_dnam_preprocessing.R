@@ -8,8 +8,8 @@ censoring <- "apr_2022" # "oct_2020"
 writeLines('Obtaining IDs for Wave 4+3 and Wave 1 individuals\n')
 # Filter out wave 4 individuals with family members in wave 1
 
-w4Target <- readRDS('/Cluster_Filespace/Marioni_Group/GS/GS_methylation/wave4/w4-samplesheet_v3.rds')
-gs10kTarget <- readRDS('/Cluster_Filespace/Marioni_Group/Yipeng/prediction-pipelines/incident_diabetes_pipeline/using_methylpiper/src/20k/preprocessing/GS10k_Targets.rds')
+w4Target <- readRDS(paste0(config$gs_target_file_path, 'w4-samplesheet_v3.rds'))
+gs10kTarget <- readRDS(paste0(config$gs_target_file_path, 'GS10k_Targets.rds'))
 
 w1Target <- gs10kTarget[gs10kTarget$Set == 'W1',]
 w3Target <- gs10kTarget[gs10kTarget$Set == 'W3',]
@@ -92,7 +92,7 @@ writeLines(paste0('Initial n cases in training Cox table = ', nrow(trainingCoxTa
 writeLines(paste0('Initial n individuals in test Cox table = ', nrow(testCoxTable)))
 writeLines(paste0('Initial n cases in test Cox table = ', nrow(testCoxTable[testCoxTable$Event == 1,]), '\n'))
 
-bodyTable <- read.csv('/Cluster_Filespace/Marioni_Group/Yipeng/data/GS/body.csv')
+bodyTable <- read.csv(paste0(config$body_file_path, 'body.csv'))
 
 # For the training table, all.x = TRUE as we are not removing individuals from the training set with NA covariates
 trainingCoxTable <- merge(trainingCoxTable, bodyTable[, c('id', 'bmi')], all.x = TRUE, by.x = 'Sample_Name', by.y = 'id')
@@ -103,7 +103,7 @@ writeLines(paste0('Number of cases in training Cox table after body table (BMI) 
 writeLines(paste0('Number of individuals in test Cox table after body table (BMI) merge = ', nrow(testCoxTable)))
 writeLines(paste0('Number of cases in test Cox table after body table (BMI) merge = ', nrow(testCoxTable[testCoxTable$Event == 1, ]), '\n'))
 
-diseaseTable <- read.csv('/Cluster_Filespace/Marioni_Group/Yipeng/prediction-pipelines/incident_diabetes_pipeline/data/disease.csv')
+diseaseTable <- read.csv(paste0(config$disease_table_file_path, 'disease.csv'))
 
 # For the training table, all.x = TRUE as we are not removing individuals from the training set with NA covariates
 trainingCoxTable <- merge(trainingCoxTable, diseaseTable[, c('ID', 'high_BP_Y', 'diabetes_M', 'diabetes_F', 'diabetes_BS', 'diabetes_B', 'diabetes_S')], all.x = TRUE, by.x = 'Sample_Name', by.y = 'ID')
@@ -145,24 +145,21 @@ writeLines(paste0('Number of cases in test Cox table after removing time_to_even
 # Incorporate DNAm data
 
 writeLines('Loading w4Methyl')
-# w4Methyl <- readRDS('/Cluster_Filespace/Marioni_Group/GS/GS_methylation/wave4/w4-mvals.rds')
-w4Methyl <- readRDS('/Scratch_Area/Ola/wave4_no_compression.RDS')
+w4Methyl <- readRDS(paste0(config$raw_dnam_data_path, 'wave4_no_compression.RDS'))
 writeLines('Transpose w4Methyl')
 w4Methyl <- t(w4Methyl)
 
 gc()
 
 writeLines('Loading w3Methyl')
-# w3Methyl <- readRDS('/Cluster_Filespace/Marioni_Group/GS/GS_methylation/wave3-final/w3.mvals.rds')
-w3Methyl <- readRDS('/Scratch_Area/Ola/wave3_no_compression.RDS')
+w3Methyl <- readRDS(paste0(config$raw_dnam_data_path, 'wave3_no_compression.RDS'))
 writeLines('Transpose w3Methyl')
 w3Methyl <- t(w3Methyl)
 
 gc()
 
 writeLines('Loading w1Methyl')
-# w1Methyl <- readRDS('/Cluster_Filespace/Marioni_Group/GS/GS_methylation/norm_mvals_5087.rds')
-w1Methyl <- readRDS('/Scratch_Area/Ola/wave1_no_compression.RDS')
+w1Methyl <- readRDS(paste0(config$raw_dnam_data_path, 'wave1_no_compression.RDS'))
 writeLines('Transpose w1Methyl')
 w1Methyl <- t(w1Methyl)
 
@@ -279,23 +276,21 @@ w1FinalNControls <- nrow(w1CoxTable[w1CoxTable$Event == 0, ])
 writeLines(paste0('Final n cases wave 1: ', w1FinalNCases, ', n controls: ', w1FinalNControls))
 
 
-# writeLines('Save locally to reduce load times')
-# 
-# writeLines('Wave 4')
-# saveRDS(w4CoxTable, paste0('/Local_Scratch/Yipeng/w4CoxTable_', censoring, '_3_month_cutoff.rds'))
-# saveRDS(w4Methyl, paste0('/Local_Scratch/Yipeng/w4Methyl_', censoring, '_3_month_cutoff.rds'))
-# 
-# writeLines('Wave 3')
-# saveRDS(w3CoxTable, paste0('/Local_Scratch/Yipeng/w3CoxTable_', censoring, '_3_month_cutoff.rds'))
-# saveRDS(w3Methyl, paste0('/Local_Scratch/Yipeng/w3Methyl_', censoring, '_3_month_cutoff.rds'))
-# 
-# writeLines('Wave 1')
-# saveRDS(w1CoxTable, paste0('/Local_Scratch/Yipeng/w1CoxTable_', censoring, '_3_month_cutoff.rds'))
-# saveRDS(w1Methyl, paste0('/Local_Scratch/Yipeng/w1Methyl_', censoring, '_3_month_cutoff.rds'))
-# 
-# w4Methyl <- NULL
-# w3Methyl <- NULL
-# w1Methyl <- NULL
+writeLines('Wave 4')
+saveRDS(w4CoxTable, paste0(config$dnam_data_path, 'w4CoxTable_', censoring, '_3_month_cutoff.rds'))
+saveRDS(w4Methyl, paste0(config$dnam_data_path, 'w4Methyl_', censoring, '_3_month_cutoff.rds'))
+
+writeLines('Wave 3')
+saveRDS(w3CoxTable, paste0(config$dnam_data_path, 'w3CoxTable_', censoring, '_3_month_cutoff.rds'))
+saveRDS(w3Methyl, paste0(config$dnam_data_path, 'w3Methyl_', censoring, '_3_month_cutoff.rds'))
+
+writeLines('Wave 1')
+saveRDS(w1CoxTable, paste0(config$dnam_data_path, 'w1CoxTable_', censoring, '_3_month_cutoff.rds'))
+saveRDS(w1Methyl, paste0(config$dnam_data_path, 'w1Methyl_', censoring, '_3_month_cutoff.rds'))
+
+w4Methyl <- NULL
+w3Methyl <- NULL
+w1Methyl <- NULL
 
 gc()
 
