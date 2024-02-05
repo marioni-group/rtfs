@@ -53,7 +53,6 @@ p <- ggroc(rocList) +
        coord_equal() + 
        scale_colour_manual(values=cbPalette, 
                            labels = c(paste0('Risk factors only: ', aucValues[[1]]), 
-                                      # paste0('Risk factors + EPIC-450k EpiScore: ', aucValues[[2]]),
                                       paste0('Risk factors + Incident T2D EWAS EpiScore: ', aucValues[[2]]),
                                       paste0('Risk factors + RTFS EpiScore: ', aucValues[[3]]))) +
        guides(color = guide_legend(title = "Model: AUC")) + 

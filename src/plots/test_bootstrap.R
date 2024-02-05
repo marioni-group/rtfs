@@ -14,19 +14,13 @@ readFromResults <- function(filename) {
 }
 
 targets <- list(
-#   pcaEWAS76 = readFromResults("output_2023_02_24_15_54_59/testTarget.rds"),
   epic450k = readFromResults("output_2023_10_01_18_08_51/testTarget.rds"),
-#   pcaEPIC450k = readFromResults("output_2023_02_27_11_15_08/testTarget.rds"),
   var200k = readFromResults("output_2023_10_01_18_35_10/testTarget.rds"),
   var100k = readFromResults("output_2023_10_01_19_00_59/testTarget.rds"),
-#   pcaEWAS58 = readFromResults("output_2023_02_27_10_51_43/testTarget.rds"),
-#   pcaEWAS5876 = readFromResults("output_2023_02_27_11_03_59/testTarget.rds"),
   ewas76 = readFromResults("output_2023_10_01_19_47_09/testTarget.rds"),
   ewas58 = readFromResults("output_2023_10_02_08_06_31/testTarget.rds"),
-#   pcaVar200k = readFromResults("output_2023_07_26_11_34_24/testTarget.rds"),
   ewas5876 = readFromResults("output_2023_10_02_08_36_58/testTarget.rds"),
   rtfs = readFromResults("output_2023_10_01_19_59_28/testTarget.rds")
-#   pcaRTFS = readFromResults("output_2023_05_11_16_33_26/testTarget.rds")
 )
 
 nBootstraps <- 1000
@@ -37,10 +31,10 @@ nBootstraps <- 1000
 #   })
 # })
 
-# saveRDS(bootstrapResults, "/Cluster_Filespace/Marioni_Group/Yipeng/prediction-pipelines/rtfs_20k/gp_hosp_40_60/scripts_20230221/results_gp_smr/bootstrapResultsGPSMR.rds")
+# saveRDS(bootstrapResults, paste0(config$bootstrap_results_path, "bootstrapResultsGPSMR.rds"))
 
 # Load previously saved results
-bootstrapResults <- readRDS("/Cluster_Filespace/Marioni_Group/Yipeng/prediction-pipelines/rtfs_20k/gp_hosp_40_60/scripts_20230221/results_gp_smr/bootstrapResultsGPSMR.rds")
+bootstrapResults <- readRDS(paste0(config$bootstrap_results_path, "bootstrapResultsGPSMR.rds"))
 
 # stop()
 
@@ -113,15 +107,6 @@ meanDiffPlot <- meanDiffArray %>%
     xlab("") + ylab("") +
     guides(fill=guide_legend(title="Mean Bootstrap AUC Difference (Y over X)"))
 
-# fullAUCsByBootstrap <- sapply(1:100, function(bootstrapSeed) {
-#   aucs <- sapply(names(targets), function(method) {
-#     bootstrapResults[[method]][[bootstrapSeed]]$aucs[["dPRS"]]
-#   })
-#   names(aucs) <- names(targets)
-#   aucs$riskFactors <- bootstrapResults[[1]][[bootstrapSeed]]$aucs[["rPRS"]]
-#   aucs
-# })
-
 aucRankOrdersByBootstrap <- apply(-fullAUCsByMethod, 1, function(x){rank(x, ties.method = "min")})
 aucRankOrdersByBootstrapFreq <- apply(aucRankOrdersByBootstrap, 1, table)
 names(aucRankOrdersByBootstrapFreq) <- names(fullPRAUCsByMethod)
@@ -168,17 +153,6 @@ praucRankFrequencyDFs <- lapply(names(praucRankFrequencies), function(method) {
 
 praucRankFrequencyDF <- do.call(rbind, praucRankFrequencyDFs)
 
-# plotRankFrequencies <- function(df, plotCols) {
-#   # Colour-blind friendly palette
-#   cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-# 
-#   p <- df %>% filter(method %in% plotCols) %>%
-#          ggplot(aes(x = rank, y = frequency, colour = as.factor(method))) +
-#            geom_point() + 
-#            geom_line() +
-#            theme_minimal() +
-#            scale_colour_manual(values = cbPalette)
-# }
 
 # Colour-blind friendly palette
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
@@ -233,31 +207,31 @@ plotRankCumulative <- function(df, plotCols, plotColLegendNames) {
            xlab("Rank by AUC")
 }
 
-pdf(here::here("results", "plots", "bootstrap", "auc_rank_cumulative_plot.pdf"), width = 10, height = 7) # , units = "in", res = 600)
+pdf(here::here("results", "plots", "bootstrap", "auc_rank_cumulative_plot.pdf"), width = 10, height = 7) 
 aucRankCumulativePlot <- plotRankCumulative(aucRankCumulativeDF, 
-                                            plotCols = c("rtfs", "ewas76", "var200k", "epic450k", "riskFactors"), # c("epic450k", "var200k", "ewas76", "rtfs", "riskFactors"),
-                                            plotColLegendNames = c("RTFS", "Incident T2D EWAS", "Top 200k by Variance", "EPIC-450k Intersection", "Risk Factors Only"))# c("EPIC-450k Intersection", "Top 200k by Variance", "Incident T2D EWAS", "RTFS", "Risk Factors Only"))
+                                            plotCols = c("rtfs", "ewas76", "var200k", "epic450k", "riskFactors"), 
+                                            plotColLegendNames = c("RTFS", "Incident T2D EWAS", "Top 200k by Variance", "EPIC-450k Intersection", "Risk Factors Only"))
 print(aucRankCumulativePlot)
 dev.off()
 
-pdf(here::here("results", "plots", "bootstrap", "prauc_rank_cumulative_plot.pdf"), width = 10, height = 7) # , units = "in", res = 600)
+pdf(here::here("results", "plots", "bootstrap", "prauc_rank_cumulative_plot.pdf"), width = 10, height = 7) 
 praucRankCumulativePlot <- plotRankCumulative(praucRankCumulativeDF,
-                                              plotCols = c("rtfs", "ewas76", "var200k", "epic450k", "riskFactors"),# c("epic450k", "var200k", "ewas76", "rtfs", "riskFactors"),
-                                              plotColLegendNames = c("RTFS", "Incident T2D EWAS", "Top 200k by Variance", "EPIC-450k Intersection", "Risk Factors Only")) # c("EPIC-450k Intersection", "Top 200k by Variance", "Incident T2D EWAS", "RTFS", "Risk Factors Only"))
+                                              plotCols = c("rtfs", "ewas76", "var200k", "epic450k", "riskFactors"),
+                                              plotColLegendNames = c("RTFS", "Incident T2D EWAS", "Top 200k by Variance", "EPIC-450k Intersection", "Risk Factors Only"))
 print(praucRankCumulativePlot)
 dev.off()
 
 # pngs
-png(here::here("results", "plots", "bootstrap", "auc_rank_cumulative_plot.png"), width = 10, height = 7) # , units = "in", res = 600)
+png(here::here("results", "plots", "bootstrap", "auc_rank_cumulative_plot.png"), width = 10, height = 7) 
 aucRankCumulativePlot <- plotRankCumulative(aucRankCumulativeDF,
-                                            plotCols = c("rtfs", "ewas76", "var200k", "epic450k", "riskFactors"), # c("epic450k", "var200k", "ewas76", "rtfs", "riskFactors"),
-                                            plotColLegendNames = c("RTFS", "Incident T2D EWAS", "Top 200k by Variance", "EPIC-450k Intersection", "Risk Factors Only"))# c("EPIC-450k Intersection", "Top 200k by Variance", "Incident T2D EWAS", "RTFS", "Risk Factors Only"))
+                                            plotCols = c("rtfs", "ewas76", "var200k", "epic450k", "riskFactors"),
+                                            plotColLegendNames = c("RTFS", "Incident T2D EWAS", "Top 200k by Variance", "EPIC-450k Intersection", "Risk Factors Only"))
 print(aucRankCumulativePlot)
 dev.off()
 
-png(here::here("results", "plots", "bootstrap", "prauc_rank_cumulative_plot.png"), width = 10, height = 7) # , units = "in", res = 600)
+png(here::here("results", "plots", "bootstrap", "prauc_rank_cumulative_plot.png"), width = 10, height = 7)
 praucRankCumulativePlot <- plotRankCumulative(praucRankCumulativeDF,
-                                              plotCols = c("rtfs", "ewas76", "var200k", "epic450k", "riskFactors"),# c("epic450k", "var200k", "ewas76", "rtfs", "riskFactors"),
-                                              plotColLegendNames = c("RTFS", "Incident T2D EWAS", "Top 200k by Variance", "EPIC-450k Intersection", "Risk Factors Only")) # c("EPIC-450k Intersection", "Top 200k by Variance", "Incident T2D EWAS", "RTFS", "Risk Factors Only"))
+                                              plotCols = c("rtfs", "ewas76", "var200k", "epic450k", "riskFactors"),
+                                              plotColLegendNames = c("RTFS", "Incident T2D EWAS", "Top 200k by Variance", "EPIC-450k Intersection", "Risk Factors Only"))
 print(praucRankCumulativePlot)
 dev.off()
