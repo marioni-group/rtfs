@@ -1,7 +1,7 @@
 library(dplyr)
 library(purrr)
 
-source(here::here("src", "continuous_traits", "continuous_traits_phenotype_preprocessing.R")
+source(here::here("src", "continuous_traits", "continuous_traits_phenotype_preprocessing.R"))
 
 originals <- lapply(results, function(wave_result) {
   wave_result$original
