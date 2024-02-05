@@ -8,7 +8,7 @@ getFilterByVarianceIDs <- function(data, numberOfFeatures) {
 }
 
 # Get 450k IDs from annotation file
-get450kIDs <- function(filepath = "/Cluster_Filespace/Marioni_Group/Yipeng/data/GS/IHD_pipeline/EPIC_AnnotationObject_df.rds") {
+get450kIDs <- function(filepath = paste0(config$epic_annotation_file_path, "EPIC_AnnotationObject_df.rds")) {
   annotations <- readRDS(filepath)
   rownames(annotations)[annotations[, 'Methyl450_Loci'] == 'TRUE']
 }
@@ -38,25 +38,19 @@ predictCoxPHOnset <- function(dataDF, coxPHModel, threshold = 10) {
 # Censoring should be "apr_2022" or "oct_2020" or NULL (original phenotype - oct_2020 censoring date but no TTE rounding)
 load450kW3W1 <- function(censoring = NULL) {
   if (!is.null(censoring)) {
-    # targetW3 <- readRDS(paste0('/Local_Scratch/Yipeng/w3CoxTable_', censoring, '.rds'))
-    # methylW3 <- readRDS('/Local_Scratch/Yipeng/w3Methyl_apr_2022.rds')
+    targetW3 <- readRDS(paste0(config$dnam_data_path, "w3CoxTable_gp_smr_", censoring, ".rds"))
+    targetW1 <- readRDS(paste0(config$dnam_data_path, "w1CoxTable_gp_smr_", censoring, ".rds"))
 
-    # targetW1 <- readRDS(paste0('/Local_Scratch/Yipeng/w1CoxTable_', censoring, '.rds'))
-    # methylW1 <- readRDS('/Local_Scratch/Yipeng/w1Methyl_apr_2022.rds')
-
-    targetW3 <- readRDS(paste0("/Local_Scratch/Yipeng/w3CoxTable_gp_smr_", censoring, ".rds"))
-    targetW1 <- readRDS(paste0("/Local_Scratch/Yipeng/w1CoxTable_gp_smr_", censoring, ".rds"))
-
-    methylW3 <- readRDS(paste0("/Local_Scratch/Yipeng/w3Methyl_gp_smr_", censoring, ".rds"))
-    methylW1 <- readRDS(paste0("/Local_Scratch/Yipeng/w1Methyl_gp_smr_", censoring, ".rds"))
+    methylW3 <- readRDS(paste0(config$dnam_data_path, "w3Methyl_gp_smr_", censoring, ".rds"))
+    methylW1 <- readRDS(paste0(config$dnam_data_path, "w1Methyl_gp_smr_", censoring, ".rds"))
   } else {
     # Stop script as this option should not be used
-    # stop()
-    targetW3 <- readRDS('/Local_Scratch/Yipeng/w3CoxTable.rds')
-    methylW3 <- readRDS('/Local_Scratch/Yipeng/w3Methyl.rds')
+    stop()
+    targetW3 <- readRDS(paste0(config$dnam_data_path, 'w3CoxTable.rds'))
+    methylW3 <- readRDS(paste0(config$dnam_data_path, 'w3Methyl.rds'))
 
-    targetW1 <- readRDS('/Local_Scratch/Yipeng/w1CoxTable.rds')
-    methylW1 <- readRDS('/Local_Scratch/Yipeng/w1Methyl.rds')
+    targetW1 <- readRDS(paste0(config$dnam_data_path, 'w1CoxTable.rds'))
+    methylW1 <- readRDS(paste0(config$dnam_data_path, 'w1Methyl.rds'))
   }
   # Filter out NA BMI rows from targetW1
   targetW1NonNABMIIndex <- !is.na(targetW1$bmi)
@@ -76,12 +70,12 @@ load450kW3W1 <- function(censoring = NULL) {
   list(targetW3 = targetW3, methylW3 = methylW3, targetW1 = targetW1, methylW1 = methylW1)
 }
 
-addFamilyInformation <- function(target, pedigreeFile = '/Cluster_Filespace/Marioni_Group/Yipeng/prediction-pipelines/incident_diabetes_pipeline/using_methylpiper/src/20k/preprocessing/2022-01-17_pedigree.csv') {
+addFamilyInformation <- function(target, pedigreeFile = paste0(config$pedigree_file_path, '2022-01-17_pedigree.csv')) {
   pedigree <- read.csv(pedigreeFile)
   target <- merge(target, pedigree[, c('volid', 'famid')], by.x = 'Sample_Name', by.y = 'volid', all.x = TRUE)
 }
 
-addPRS <- function(target, prsFile = '/Cluster_Filespace/Marioni_Group/Yipeng/INTERVENE/flagship/prs_output/T2D_PRS.sscore', scoreCol = 'SCORE1_SUM', sep = '\t', targetIDCol = 'Sample_Name', prsIDCol = 'IID') {
+addPRS <- function(target, prsFile = paste0(config$prs_file_path, 'T2D_PRS.sscore'), scoreCol = 'SCORE1_SUM', sep = '\t', targetIDCol = 'Sample_Name', prsIDCol = 'IID') {
   prs <- read.csv(prsFile, sep = sep)
   target <- target %>% left_join(prs[, c(prsIDCol, scoreCol)], by = setNames(prsIDCol, targetIDCol))
 }
