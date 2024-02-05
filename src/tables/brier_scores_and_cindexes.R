@@ -33,51 +33,39 @@ readFromResults <- function(filename) {
 }
 
 results <- list(
-  # pcaEWASIncident = readFromResults("output_2023_02_24_15_54_59/testResults.rds"),
   epic450k = readFromResults("output_2023_10_01_18_08_51/testResults.rds"),
   var200k = readFromResults("output_2023_10_01_18_35_10/testResults.rds"),
   var100k = readFromResults("output_2023_10_01_19_00_59/testResults.rds"),
   pcaVar200k = readFromResults("output_2023_10_09_11_38_35/testResults.rds"),
-  # pcaEWASPrevalent = readFromResults("output_2023_02_27_10_51_43/testResults.rds"),
-  # pcaEWASPrevalentIncident = readFromResults("output_2023_02_27_11_03_59/testResults.rds"),
   pcaEPIC450k = readFromResults("output_2023_10_02_22_37_56/testResults.rds"),
   ewasIncident = readFromResults("output_2023_10_01_19_47_09/testResults.rds"),
   ewasPrevalent = readFromResults("output_2023_10_02_08_06_31/testResults.rds"),
   ewasPrevalentIncident = readFromResults("output_2023_10_02_08_36_58/testResults.rds"),
   rtfs = readFromResults("output_2023_10_01_19_59_28/testResults.rds")
-  # pcaRTFS = readFromResults("output_2023_05_11_16_33_26/testResults.rds")
 )
 
 models <- list(
-  # pcaEWASIncident = readFromResults("output_2023_02_24_15_54_59/models.rds"),
   epic450k = readFromResults("output_2023_10_01_18_08_51/models.rds"),
   var200k = readFromResults("output_2023_10_01_18_35_10/models.rds"),
   var100k = readFromResults("output_2023_10_01_19_00_59/models.rds"),
   pcaVar200k = readFromResults("output_2023_10_09_11_38_35/models.rds"),
-  # pcaEWASPrevalent = readFromResults("output_2023_02_27_10_51_43/models.rds"),
-  # pcaEWASPrevalentIncident = readFromResults("output_2023_02_27_11_03_59/models.rds"),
   pcaEPIC450k = readFromResults("output_2023_10_02_22_37_56//models.rds"),
   ewasIncident = readFromResults("output_2023_10_01_19_47_09/models.rds"),
   ewasPrevalent = readFromResults("output_2023_10_02_08_06_31/models.rds"),
   ewasPrevalentIncident = readFromResults("output_2023_10_02_08_36_58/models.rds"),
   rtfs = readFromResults("output_2023_10_01_19_59_28/models.rds")
-  # pcaRTFS = readFromResults("output_2023_05_11_16_33_26/models.rds")
 )
 
 
-modelNames <- c(# "PCA Incident T2D EWAS",
-                "EPIC-450k",
+modelNames <- c("EPIC-450k",
                 "Top 200k by Variance",
                 "Top 100k by Variance",
                 "PCA Top 200k by Variance",
-                # "PCA Prevalent T2D EWAS",
-                # "PCA Prevalent and Incident T2D EWAS",
                 "PCA EPIC-450k",
                 "Incident T2D EWAS",
                 "Prevalent T2D EWAS",
                 "Prevalent and Incident T2D EWAS",
                 "RTFS",
-                # "PCA RTFS",
                 "Risk Factors",
                 "Risk Factors + PRS",
                 "Risk Factors + PRS + Incident T2D EWAS EpiScore")
@@ -89,7 +77,7 @@ full_models <- lapply(models, function(x) {x$d})
 
 cox_models <- c(full_models, "riskFactors" = list(null_model), "riskFactorsPRS" = list(prs_model), "riskFactorsPRSEpiScore" = list(prs_top_episcore_model))
 
-target <- readRDS("/Cluster_Filespace/Marioni_Group/Yipeng/prediction-pipelines/rtfs_20k/gp_hosp_40_60/scripts_20230221/results_gp_smr/methylpiper_logs/output_2023_10_01_18_08_51/testTarget.rds")
+target <- readFromResults("output_2023_10_01_18_08_51/testTarget.rds")
 
 predictions <- lapply(time_points, function(time_point) {
   model_predictions <- lapply(cox_models, function(model) {

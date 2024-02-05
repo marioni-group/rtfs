@@ -1,7 +1,7 @@
 library(dplyr)
 library(purrr)
 
-source('/Cluster_Filespace/Marioni_Group/Yipeng/prediction-pipelines/rtfs_20k/script_pheno_prep_20k_separate_waves.R')
+source(here::here("src", "continuous_traits", "continuous_traits_phenotype_preprocessing.R")
 
 originals <- lapply(results, function(wave_result) {
   wave_result$original
@@ -14,10 +14,6 @@ originals <- lapply(originals, function(original) {
   original$PckYrs <- exp(original$PckYrs) - 1
   original
 })
-
-# summaries <- lapply(originals, function(original) {
-#   original %>% summary
-# })
 
 # For each wave, calculate statistics over each trait.
 originals_stats <- lapply(originals, function(original) {
@@ -41,17 +37,6 @@ originals_stats <- lapply(originals, function(original) {
   df
 })
 
-# w4_nas <- readRDS("w4_family_filtered_nas.rds")
-# w1_nas <- readRDS("w1_family_filtered_nas.rds")
-
-# originals_stats$w4$NAs <- w4_nas
-# originals_stats$w1$NAs <- w1_nas
-# 
-# sample_sizes <- lapply(originals, function(original) {
-#   total_rows <- nrow(original)
-#   count_nas <- apply(original, 2, function(x){sum(is.na(x))})
-#   total_rows - count_nas
-# })
 
 # write stats to file
 map2(originals_stats, names(originals_stats), function(x, y) {write.csv(x, here::here("results", "tables", paste0('continuous_stats_', y, '.csv')), row.names = FALSE)})

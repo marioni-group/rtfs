@@ -2,7 +2,7 @@ library(dplyr)
 
 auc_alpha_lambda_table <- read.csv(here::here("results", "tables", "aucs_alphas_lambdas.csv"))
 c_index_table <- read.csv(here::here("results", "tables", "c_indexes.csv")) %>% rename(Model = X, `C-index` = c_indexes)
-combined_table <- auc_alpha_lambda_table %>% left_join(c_index_table) #  %>% select(Model, AUC, PRAUC, `C-index`, Alpha, Lambda)
+combined_table <- auc_alpha_lambda_table %>% left_join(c_index_table) 
 
 # Change to clearer model labels
 new_model_labels <- c("Risk Factors-only",

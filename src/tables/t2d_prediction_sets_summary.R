@@ -1,8 +1,10 @@
+config <- yaml::read_yaml(here::here("config.yml"))
+
 source(here::here("src", "analysis_functions.R"))
 
-targetW4 <- readRDS('/Local_Scratch/Yipeng/w4CoxTable_gp_smr_apr_2022.rds')
-targetW3 <- readRDS('/Local_Scratch/Yipeng/w3CoxTable_gp_smr_apr_2022.rds')
-targetW1 <- readRDS('/Local_Scratch/Yipeng/w1CoxTable_gp_smr_apr_2022.rds')
+targetW4 <- readRDS(paste0(config$dnam_data_path, 'w4CoxTable_gp_smr_apr_2022.rds'))
+targetW3 <- readRDS(paste0(config$dnam_data_path, 'w3CoxTable_gp_smr_apr_2022.rds'))
+targetW1 <- readRDS(paste0(config$dnam_data_path, 'w1CoxTable_gp_smr_apr_2022.rds'))
 
 # Filter out NA BMI rows from targetW1
 targetW1NonNABMIIndex <- !is.na(targetW1$bmi)
