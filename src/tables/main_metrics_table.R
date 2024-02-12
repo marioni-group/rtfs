@@ -5,18 +5,18 @@ c_index_table <- read.csv(here::here("results", "tables", "c_indexes.csv")) %>% 
 combined_table <- auc_alpha_lambda_table %>% left_join(c_index_table) 
 
 # Change to clearer model labels
-new_model_labels <- c("Risk Factors-only",
-                      "PCA EPIC-450k EpiScore",
-                      "PCA Top 200k by Variance EpiScore",
-                      "EPIC-450k EpiScore",
-                      "PRS",
-                      "Top 100k by Variance EpiScore",
-                      "Prevalent T2D EWAS EpiScore",
-                      "Top 200k by Variance EpiScore",
-                      "Prevalent and Incident T2D EWAS EpiScore",
-                      "RTFS EpiScore",
-                      "Incident T2D EWAS EpiScore",
-                      "PRS + Incident T2D EWAS EpiScore")
+new_model_labels <- c("Risk Factors (RF) only",
+                      "RF + PCA EPIC-450k EpiScore",
+                      "RF + PCA Top 200k by Variance EpiScore",
+                      "RF + EPIC-450k EpiScore",
+                      "RF + PRS",
+                      "RF + Top 100k by Variance EpiScore",
+                      "RF + Prevalent T2D EWAS EpiScore",
+                      "RF + Top 200k by Variance EpiScore",
+                      "RF + Prevalent and Incident T2D EWAS EpiScore",
+                      "RF + RTFS EpiScore",
+                      "RF + Incident T2D EWAS EpiScore",
+                      "RF + PRS + Incident T2D EWAS EpiScore")
 
 X_column <- c("riskFactors",
               "pcaEPIC450k",

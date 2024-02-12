@@ -189,7 +189,7 @@ praucRankCumulativeDF <- praucRankFrequencyDF %>%
   mutate(cumulative = cumsum(frequency)) %>%
   ungroup
 
-plotRankCumulative <- function(df, plotCols, plotColLegendNames) {
+plotRankCumulative <- function(df, plotCols, plotColLegendNames, xLabel) {
   # Colour-blind friendly palette
   cbPalette <- c(# "#999999", 
                  "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
@@ -204,20 +204,22 @@ plotRankCumulative <- function(df, plotCols, plotColLegendNames) {
                                labels = plotColLegendNames) +
            theme(legend.title=element_blank()) +
            ylab("Cumulative frequency in 1000 bootstrap samples") +
-           xlab("Rank by AUC")
+           xlab(xLabel)
 }
 
 pdf(here::here("results", "plots", "bootstrap", "auc_rank_cumulative_plot.pdf"), width = 10, height = 7) 
 aucRankCumulativePlot <- plotRankCumulative(aucRankCumulativeDF, 
                                             plotCols = c("rtfs", "ewas76", "var200k", "epic450k", "riskFactors"), 
-                                            plotColLegendNames = c("RTFS", "Incident T2D EWAS", "Top 200k by Variance", "EPIC-450k Intersection", "Risk Factors Only"))
+                                            plotColLegendNames = c("RTFS", "Incident T2D EWAS", "Top 200k by Variance", "EPIC-450k Intersection", "Risk Factors Only"),
+                                            xLabel = "Top n Rank by AUC")
 print(aucRankCumulativePlot)
 dev.off()
 
 pdf(here::here("results", "plots", "bootstrap", "prauc_rank_cumulative_plot.pdf"), width = 10, height = 7) 
 praucRankCumulativePlot <- plotRankCumulative(praucRankCumulativeDF,
                                               plotCols = c("rtfs", "ewas76", "var200k", "epic450k", "riskFactors"),
-                                              plotColLegendNames = c("RTFS", "Incident T2D EWAS", "Top 200k by Variance", "EPIC-450k Intersection", "Risk Factors Only"))
+                                              plotColLegendNames = c("RTFS", "Incident T2D EWAS", "Top 200k by Variance", "EPIC-450k Intersection", "Risk Factors Only"),
+                                              xLabel = "Top n Rank by PRAUC")
 print(praucRankCumulativePlot)
 dev.off()
 
@@ -225,13 +227,15 @@ dev.off()
 png(here::here("results", "plots", "bootstrap", "auc_rank_cumulative_plot.png"), width = 10, height = 7) 
 aucRankCumulativePlot <- plotRankCumulative(aucRankCumulativeDF,
                                             plotCols = c("rtfs", "ewas76", "var200k", "epic450k", "riskFactors"),
-                                            plotColLegendNames = c("RTFS", "Incident T2D EWAS", "Top 200k by Variance", "EPIC-450k Intersection", "Risk Factors Only"))
+                                            plotColLegendNames = c("RTFS", "Incident T2D EWAS", "Top 200k by Variance", "EPIC-450k Intersection", "Risk Factors Only"),
+                                            xLabel = "Top n Rank by AUC")
 print(aucRankCumulativePlot)
 dev.off()
 
 png(here::here("results", "plots", "bootstrap", "prauc_rank_cumulative_plot.png"), width = 10, height = 7)
 praucRankCumulativePlot <- plotRankCumulative(praucRankCumulativeDF,
                                               plotCols = c("rtfs", "ewas76", "var200k", "epic450k", "riskFactors"),
-                                              plotColLegendNames = c("RTFS", "Incident T2D EWAS", "Top 200k by Variance", "EPIC-450k Intersection", "Risk Factors Only"))
+                                              plotColLegendNames = c("RTFS", "Incident T2D EWAS", "Top 200k by Variance", "EPIC-450k Intersection", "Risk Factors Only"),
+                                              xLabel = "Top n Rank by PRAUC")
 print(praucRankCumulativePlot)
 dev.off()
